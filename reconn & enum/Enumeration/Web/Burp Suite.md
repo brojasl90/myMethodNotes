@@ -1,0 +1,1 @@
+_Burp Suite_[1](https://portal.offsec.com/courses/pen-200/books-and-videos/modal/modules/introduction-to-web-application-attacks/web-application-assessment-tools/security-testing-with-burp-suite#fn1) is a GUI-based integrated platform for web application security testing. It provides several different tools via the same user interface.

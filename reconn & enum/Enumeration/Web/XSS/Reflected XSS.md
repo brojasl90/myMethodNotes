@@ -1,0 +1,1 @@
+_Reflected XSS attacks_ usually include the payload in a crafted request or link. The web application takes this value and places it into the page content. This XSS variant only attacks the person submitting the request or visiting the link. Reflected XSS vulnerabilities can often occur in search fields and results, as well as anywhere user input is included in error messages.

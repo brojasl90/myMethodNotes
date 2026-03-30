@@ -1,0 +1,27 @@
+site_name: My Pentest Methodology
+site_url: https://brojasl90.github.io/myMethodNotes
+site_description: Pentest and bug bounty methodology notes
+
+theme:
+  name: material
+  palette:
+    scheme: slate        # dark mode by default (fits the audience)
+    primary: teal
+    accent: deep orange
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - search.highlight
+    - content.code.copy   # copy button on all code blocks
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences   # nested code blocks
+  - pymdownx.tabbed        # tabbed content
+  - admonition             # note/warning/tip boxes
+  - toc:
+      permalink: true
