@@ -1,3 +1,34 @@
+<div align="center">
+  <img src="assets/profile.jpg" width="280" 
+    style="border-radius: 50%; 
+           border: 4px; 
+           padding: 4px;
+           box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
+</div>
+## Brayan Rojas Loria
+  
+  Penetration Tester · OSCP+ · CEH · GSEC  
+  📍 Costa Rica
+
+
+---
+
+## About
+
+Pentester at Procter & Gamble with 5+ years of hands-on experience in 
+enterprise security. My day-to-day work covers Active Directory attacks, 
+web application testing, Azure hybrid environments, Windows internals, 
+and controls evasion.
+
+These notes are my personal methodology — built from real engagements, 
+HTB machines, OSCP prep, and bug bounty hunting. Everything here is 
+meant to be practical and reusable in the field.
+
+If something helped you or you want to contribute, feel free to open a 
+PR on [GitHub](https://github.com/brojasl90/myMethodNotes).
+
+---
+
 # My Pentest Notes
 
 Personal pentesting and bug bounty methodology notes. Covers recon, exploitation, 
