@@ -1,81 +1,40 @@
 <div align="center">
-  <img src="assets/profile.jpg" width="280" 
-    style="border-radius: 50%; 
-           border: 4px; 
-           padding: 4px;
-           box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
-</div>
-## Brayan Rojas Loria
-  
+  <img src="assets/profile.jpg" width="280"
+    style="border-radius: 50%;
+           border: 4px solid #000000;
+           padding: 4px;" />
+
+  ## Brayan Rojas Loria
+
   Penetration Tester · OSCP+ · CEH · GSEC  
   📍 Costa Rica
-
+</div>
 
 ---
 
 ## About
 
-Pentester at Procter & Gamble with 5+ years of hands-on experience in 
-enterprise security. My day-to-day work covers Active Directory attacks, 
-web application testing, Azure hybrid environments, Windows internals, 
+Pentester at Procter & Gamble with 5+ years of hands-on experience in
+enterprise security. My day-to-day work covers Active Directory attacks,
+web application testing, Azure hybrid environments, Windows internals,
 and controls evasion.
 
-These notes are my personal methodology — built from real engagements, 
-HTB machines, OSCP prep, and bug bounty hunting. Everything here is 
+These notes are my personal methodology — built from real engagements,
+HTB machines, OSCP prep, and bug bounty hunting. Everything here is
 meant to be practical and reusable in the field.
 
-If something helped you or you want to contribute, feel free to open a 
+If something helped you or you want to contribute, feel free to open a
 PR on [GitHub](https://github.com/brojasl90/myMethodNotes).
 
 ---
 
-# My Pentest Notes
+## Sections
 
-Personal pentesting and bug bounty methodology notes. Covers recon, exploitation, 
-Active Directory, web attacks, privilege escalation, and more.
-
----
-
-## Recon & Enumeration
-- [Directory Traversal](reconn & enum/Directory Transversal.md)
-- [Web Methodology](reconn & enum/web methodology.md)
-- [Git Recon](reconn & enum/git.md)
-- [IWR - Windows](reconn & enum/iwr - windows.md)
-- [Wget - Linux](reconn & enum/wget - Linux.md)
-
-## Exploitation
-- [CVE Search](Exploitation/cve search.md)
-- [Transferring Files (General)](Exploitation/Transferring file from Windows machine to local Kali VM.md)
-
-### Linux
-- [Base64 Encode](Exploitation/Linux/base64 encode.md)
-- [SSH](Exploitation/Linux/ssh.md)
-- [TTY Treatment](Exploitation/Linux/TTY Treatment.md)
-- [Sudo Exploit 1.8.31](Exploitation/Linux/sudo exploit 1.8.31.md)
-
-### Web
-- [Basic Web Shell](Exploitation/web/basic webshell method.md)
-- [Cewl Crawling](Exploitation/web/cewl - crawling.md)
-- [Curl](Exploitation/web/curl.md)
-- [Local File Inclusion - LFI](Exploitation/web/Local File Inclusion - LFI.md)
-- [Server HTTP with Python](Exploitation/web/server http with python.md)
-- [Upload Files](Exploitation/web/Upload files.md)
-
-### Windows
-- [PowerShell](Exploitation/windows/powershell.md)
-- [RDesktop](Exploitation/windows/rdesktop.md)
-- [XFreeRDP](Exploitation/windows/xfreerdp.md)
-- [Run CMD as Another User](Exploitation/windows/run cmd as another user.md)
-- [Invoke-RunasCs](Exploitation/windows/Invoke-RunasCs.ps1.md)
-- [Transferring Files](Exploitation/windows/Transferring file from Windows machine to local Kali VM.md)
-
-## Linux Miscellaneous
-- [Background Jobs](Linux - Miscellaneous/Background Jobs.md)
-- [Shell Basics](Linux - Miscellaneous/Basics about shell and others.md)
-- [Obsidian Commands](Linux - Miscellaneous/Obsidian Commands.md)
-
-## My Tools
-- [Creating Functions in Kali](myOwnTools/s4v/creating function in kali.md)
-- [ExtractPorts](myOwnTools/s4v/extractPorts.md)
-- [HTB Explorer](myOwnTools/s4v/htbExplorer.md)
-- [Which System](myOwnTools/s4v/whichSystem.md)
+| Section | Description |
+|---|---|
+| [Recon](recon/passive/Google Hacking.md) | Passive OSINT, active scanning, service enumeration, web recon |
+| [Exploitation](exploitation/web/Local File Inclusion - LFI.md) | Web attacks, services, reverse shells, tunneling, password cracking |
+| [Privilege Escalation](privilege-escalation/linux/Basic Linux priv escalation.md) | Linux and Windows privesc techniques and tools |
+| [Active Directory](active-directory/enumeration/bloodhound.md) | Enumeration, attacks, lateral movement, persistence |
+| [Linux Misc](linux-misc/Basics about shell and others.md) | Shell tips, Kali tweaks, Python tools |
+| [Tools](tools/s4v/extractPorts.md) | Custom s4v tools and information gathering references |

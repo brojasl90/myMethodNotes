@@ -1,18 +1,19 @@
 site_name: My Pentest Methodology
 site_url: https://brojasl90.github.io/myMethodNotes
-site_description: Pentest and bug bounty methodology notes
+site_description: Pentest and bug bounty methodology notes by Bryan Rojas Loria
 
 theme:
   name: material
   palette:
-    scheme: slate        # dark mode by default (fits the audience)
+    scheme: slate
     primary: teal
     accent: deep orange
   features:
     - navigation.tabs
     - navigation.indexes
+    - navigation.sections
     - search.highlight
-    - content.code.copy   # copy button on all code blocks
+    - content.code.copy
 
 plugins:
   - search
@@ -20,48 +21,247 @@ plugins:
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences   # nested code blocks
-  - pymdownx.tabbed        # tabbed content
-  - admonition             # note/warning/tip boxes
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - admonition
+  - attr_list
+  - md_in_html
   - toc:
       permalink: true
 
 nav:
   - Home: index.md
-  - Recon & Enum:
-    - Directory Traversal: "reconn & enum/Directory Transversal.md"
-    - Web Methodology: "reconn & enum/web methodology.md"
-    - Git Recon: "reconn & enum/git.md"
-    - IWR Windows: "reconn & enum/iwr - windows.md"
-    - Wget Linux: "reconn & enum/wget - Linux.md"
-  - Exploitation:
-    - CVE Search: "Exploitation/cve search.md"
-    - Transferring Files: "Exploitation/Transferring file from Windows machine to local Kali VM.md"
-    - Linux:
-      - Base64 Encode: "Exploitation/Linux/base64 encode.md"
-      - SSH: "Exploitation/Linux/ssh.md"
-      - TTY Treatment: "Exploitation/Linux/TTY Treatment.md"
-      - Sudo Exploit: "Exploitation/Linux/sudo exploit 1.8.31.md"
+
+  - Recon:
+    - Passive:
+      - Google Hacking: recon/passive/Google Hacking.md
+      - Netcraft: recon/passive/Netcraft.md
+      - Open-Source Code: recon/passive/Open-Source Code.md
+      - Shodan: recon/passive/Shodan.md
+      - Security Headers & SSL: recon/passive/Security Headers and SSL - TLS.md
+      - Whois Enumeration: recon/passive/Whois Enumeration.md
+      - Git Recon: recon/passive/git.md
+    - Active:
+      - General Approach by Port: recon/active/General approach based on ports and services.md
+      - Nmap: recon/active/nmap.md
+      - Port Scanning Theory: recon/active/TCP - UDP Port Scanning Theory.md
+      - Port Scanning with Nmap: recon/active/Port Scanning with Nmap.md
+      - Netcat: recon/active/nc - netcat.md
+      - Autorecon: recon/active/Autorecon.md
+      - Wireshark: recon/active/wireshark.md
+      - Iptables: recon/active/iptables.md
+      - Ping Sweep: recon/active/pingsweep.md
+      - ICMP Scan: recon/active/icmp scan.md
+      - Test-NetConnection: recon/active/Test-NetConnection.md
+      - Scan from Windows CMD: recon/active/from windows scan using CMD.md
+    - Services:
+      - DNS Enumeration: recon/services/DNS Enumeration.md
+      - dnsenum: recon/services/dnsenum.md
+      - dnsrecon: recon/services/dnsrecon.md
+      - hosts: recon/services/hosts.md
+      - SMB Enumeration: recon/services/SMB Enumeration.md
+      - net view: recon/services/net view.md
+      - SMTP Enumeration: recon/services/SMTP Enumeration.md
+      - SMTP - telnet: recon/services/telnet.md
+      - SMTP - python: recon/services/python.md
+      - SMTP - dism: recon/services/dism.md
+      - SNMP Enumeration: recon/services/SNMP Enumeration.md
+      - onesixtyone: recon/services/onesixtyone.md
+      - snmpwalk: recon/services/snmpwalk.md
+      - Inveigh: recon/services/Inveigh.ps1.md
+      - secretsdump: recon/services/secretsdump.md
+      - wget (Linux): recon/services/wget - Linux.md
+      - iwr (Windows): recon/services/iwr - windows.md
     - Web:
-      - Basic Web Shell: "Exploitation/web/basic webshell method.md"
-      - Cewl Crawling: "Exploitation/web/cewl - crawling.md"
-      - Curl: "Exploitation/web/curl.md"
-      - LFI: "Exploitation/web/Local File Inclusion - LFI.md"
-      - Server HTTP Python: "Exploitation/web/server http with python.md"
-      - Upload Files: "Exploitation/web/Upload files.md"
+      - Web Methodology: recon/web/web methodology.md
+      - Directory Traversal: recon/web/Directory Transversal.md
+      - Burp Suite: recon/web/Burp Suite.md
+      - ffuf: recon/web/ffuf.md
+      - Gobuster: recon/web/Gobuster.md
+      - Feroxbuster: recon/web/feroxbuster.md
+      - Wappalyzer: recon/web/Wappalyzer.md
+      - whatweb: recon/web/whatweb.md
+      - Wordlists: recon/web/wordlists.md
+      - XSS:
+        - Stored XSS: recon/web/xss/Stored XSS.md
+        - Reflected XSS: recon/web/xss/Reflected XSS.md
+        - DOM-based XSS: recon/web/xss/DOM-based XSS.md
+      - WordPress:
+        - WPScan: recon/web/wordpress/wpscan - wordpress.md
+        - Searchsploit: recon/web/wordpress/searchsploit.md
     - Windows:
-      - PowerShell: "Exploitation/windows/powershell.md"
-      - RDesktop: "Exploitation/windows/rdesktop.md"
-      - XFreeRDP: "Exploitation/windows/xfreerdp.md"
-      - Run CMD as Another User: "Exploitation/windows/run cmd as another user.md"
-      - Invoke-RunasCs: "Exploitation/windows/Invoke-RunasCs.ps1.md"
-      - Transferring Files: "Exploitation/windows/Transferring file from Windows machine to local Kali VM.md"
+      - Enum General Windows: recon/windows/enum General Windows.md
+      - Scan with PowerShell: recon/windows/scan network with powershell.md
+    - Flag Search:
+      - grep - Passwords & Content: "recon/flag-search/grep - Searching interesting passwords or content.md"
+      - Search Recursively Linux: recon/flag-search/search recursively in Linux.md
+      - Search Files Windows: "recon/flag-search/search for every file in windows - powershell.md"
+      - Show the Flag: recon/flag-search/show the flag.md
+      - Meterpreter: recon/flag-search/meterpreter.md
+      - Windows: recon/flag-search/Windows.md
+
+  - Exploitation:
+    - Web:
+      - Web Methodology: recon/web/web methodology.md
+      - LFI: exploitation/web/Local File Inclusion - LFI.md
+      - Upload Files: exploitation/web/Upload files.md
+      - Basic Webshell: exploitation/web/basic webshell method.md
+      - Webshells: exploitation/web/webshells.md
+      - PHP Webshell: exploitation/web/webShell PHP.md
+      - cewl Crawling: exploitation/web/cewl - crawling.md
+      - curl: exploitation/web/curl.md
+      - Python HTTP Server: exploitation/web/server http with python.md
+      - OS Injection Python: exploitation/web/Python.md
+      - xp_cmdshell: exploitation/web/xp_cmdshell.md
+      - SQLi:
+        - General Approach: exploitation/web/sqli/General approach.md
+        - Validate DB Type: exploitation/web/sqli/Validate type of Database.md
+        - UNION-based: exploitation/web/sqli/UNION-based.md
+        - Error-based: exploitation/web/sqli/Error-based.md
+        - Blind SQLi: exploitation/web/sqli/Blind SQL injections.md
+        - MSSQL: exploitation/web/sqli/MSSQL.md
+        - MySQL: exploitation/web/sqli/Mysql.md
+        - xp_cmdshell MSSQL: "exploitation/web/sqli/xp_cmdshell feature - MSSQL.md"
+    - Services:
+      - CVE Search: exploitation/services/cve search.md
+      - SSH: exploitation/services/ssh.md
+      - SMBclient: exploitation/services/smbclient.md
+      - CrackMapExec: exploitation/services/crackmapexec.md
+      - Responder: exploitation/services/responder.md
+      - RDesktop: exploitation/services/rdesktop.md
+      - XFreeRDP: exploitation/services/xfreerdp.md
+      - PowerShell: exploitation/services/powershell.md
+      - Invoke-RunasCs: exploitation/services/Invoke-RunasCs.ps1.md
+      - Run CMD as Another User: exploitation/services/run cmd as another user.md
+      - Transferring Files: exploitation/services/Transferring file from Windows machine to local Kali VM.md
+      - Mobile Mouse: exploitation/services/Mobile Mouse.md
+      - Email General: exploitation/services/Email General.md
+      - sendemail: exploitation/services/sendemail.md
+      - Impacket:
+        - evil-winrm: exploitation/services/impacket/evil-winrm.md
+        - impacket-psexec: exploitation/services/impacket/impacket-psexec.md
+        - impacket-wmiexec: exploitation/services/impacket/impacket-wmiexec.md
+        - impacket-smbclient: exploitation/services/impacket/impacket-smbclient.md
+        - impacket-smbserver: exploitation/services/impacket/impacket-smbserver.md
+        - impacket-mssqlclient: exploitation/services/impacket/impacket-mssqlclient.md
+        - impacket-ntlmrelayx: exploitation/services/impacket/impacket-ntlmrelayx.md
+    - Reverse Shells:
+      - Linux: exploitation/reverse-shells/Linux.md
+      - Linux (blind, no nc): exploitation/reverse-shells/Linux when blind and no nc.md
+      - Netcat: exploitation/reverse-shells/Netcat.md
+      - PowerShell One-liner: exploitation/reverse-shells/powershell onliner.md
+      - Stabilize PowerShell: exploitation/reverse-shells/Estabilize powershell.md
+      - Stabilize Shell: exploitation/reverse-shells/Stabilize your shell.md
+      - TTY Treatment: exploitation/reverse-shells/TTY Treatment.md
+      - rlwrap Listener: exploitation/reverse-shells/rlwrap with nc listener.md
+      - msfvenom: exploitation/reverse-shells/msfvenom.md
+      - Python Script: exploitation/reverse-shells/python script.md
+      - Python DCOM: exploitation/reverse-shells/pythonScript - DCOM.md
+      - Reverse Shell Generator: exploitation/reverse-shells/reverse shell generator.md
+      - PHP Webshell: exploitation/reverse-shells/webShell PHP.md
+      - WordPress Plugin: exploitation/reverse-shells/wordpress plugin.md
+      - Base64 Encode: exploitation/reverse-shells/base64 encode.md
+    - Tunneling:
+      - Chisel: exploitation/tunneling/chisel.md
+      - Ligolo: exploitation/tunneling/ligolo.md
+    - Phishing:
+      - WsgiDAV: exploitation/phishing/WsgiDAV.md
+    - Password Cracking:
+      - Methodology: exploitation/password-cracking/Cracking methodology.md
+      - Hydra: exploitation/password-cracking/hydra.md
+      - John the Ripper: exploitation/password-cracking/John the Ripper.md
+      - Hashcat: exploitation/password-cracking/Hashcat.md
+      - Password Spray: exploitation/password-cracking/Password-Spray.md
+      - Crackstation: exploitation/password-cracking/CRACKSTATION.md
+      - Mutating Wordlists: exploitation/password-cracking/mutating.md
+      - ssh2john: exploitation/password-cracking/ssh2john.md
+      - keepass2john: exploitation/password-cracking/keepass2john.md
+      - Keepass: exploitation/password-cracking/Keepass.md
+      - Hashes:
+        - Hash Identifier: exploitation/password-cracking/hash/hash-identifier.md
+        - Hashcat Formats: exploitation/password-cracking/hash/hashcat formats.md
+        - Hashcat: exploitation/password-cracking/hash/hashcat.md
+        - Mimikatz: exploitation/password-cracking/hash/mimikatz.md
+        - Cracking NTLM: exploitation/password-cracking/hash/Cracking NTLM.md
+        - Cracking Net-NTLMv2: exploitation/password-cracking/hash/Cracking Net-NTLMv2.md
+        - Passing NTLM: exploitation/password-cracking/hash/Passing NTLM.md
+        - Relaying Net-NTLMv2: exploitation/password-cracking/hash/Relaying Net-NTLMv2.md
+
+  - Privilege Escalation:
+    - Linux:
+      - Basic PrivEsc: privilege-escalation/linux/Basic Linux priv escalation.md
+      - Enum General: privilege-escalation/linux/Enum General.md
+      - linpeas: privilege-escalation/linux/linpeas.md
+      - pspy: privilege-escalation/linux/pspy.md
+      - GTFOBins: privilege-escalation/linux/GTFOBins.md
+      - sudo: privilege-escalation/linux/sudo.md
+      - sudo exploit 1.8.31: privilege-escalation/linux/sudo exploit 1.8.31.md
+      - SUID - find: privilege-escalation/linux/suid - find.md
+      - Wildcard Injection: privilege-escalation/linux/wildcard Unix Gone Wild.md
+      - unix-privesc-check: privilege-escalation/linux/unix-privesc-check.md
+      - powerup.ps1: privilege-escalation/linux/powerup.ps1.md
+    - Windows:
+      - winpeas: privilege-escalation/windows/winpeas.md
+      - Mimikatz: privilege-escalation/windows/mimikatz.md
+      - SAM: privilege-escalation/windows/SAM.md
+      - samdump2: privilege-escalation/windows/samdump2.md
+      - Hashcat: privilege-escalation/windows/hashcat.md
+      - John: privilege-escalation/windows/john.md
+      - Binary Hijacking: privilege-escalation/windows/binary Hijacking.md
+      - ACL FullControl: privilege-escalation/windows/Acl-FullControl.md
+      - Enable RDP PowerShell: privilege-escalation/windows/Enable RDP Powershell.md
+      - sharpGPOAbuse: privilege-escalation/windows/sharpGPOAbuse.md
+      - CVE-2023-29360: privilege-escalation/windows/CVE-2023-29360.exe.md
+      - Potatoes:
+        - GodPotato: privilege-escalation/windows/potatoes/GodPotato.md
+        - JuicyPotato: privilege-escalation/windows/potatoes/juicypotato.md
+        - PrintSpoofer: privilege-escalation/windows/potatoes/printspoofer.md
+        - RoguePotato: privilege-escalation/windows/potatoes/RoguePotato.md
+        - DCOMPotato: privilege-escalation/windows/potatoes/DCOMPotato.md
+        - EfsPotato: privilege-escalation/windows/potatoes/EfsPotato.md
+        - SharpEfsPotato: privilege-escalation/windows/potatoes/SharpEfsPotato.md
+        - SigmaPotato: privilege-escalation/windows/potatoes/SigmaPotato.md
+
+  - Active Directory:
+    - Enumeration:
+      - Bloodhound: active-directory/enumeration/bloodhound.md
+      - PowerView: active-directory/enumeration/PowerView.md
+      - Kerbrute: active-directory/enumeration/kerbrute.md
+      - impacket-GetNPUser: active-directory/enumeration/impacket-GetNPUser.md
+      - WinRS & WMI & WinRM: "active-directory/enumeration/winrs and WMI, WinRM.md"
+    - Attacks:
+      - Kerberoasting: active-directory/attacks/kerberoasting.md
+      - AS-REP Roasting: active-directory/attacks/As-rep-roasting.md
+      - Pass the Hash: active-directory/attacks/Pass the hash.md
+      - Rubeus: active-directory/attacks/Rubeus.exe.md
+    - Lateral Movement:
+      - Overpass the Hash: active-directory/lateral-movement/Overpass the Hash.md
+      - Pass the Ticket: active-directory/lateral-movement/Pass the ticket.md
+    - Persistence:
+      - DCSync: active-directory/persistence/DCSync.md
+      - Golden Ticket: active-directory/persistence/Golden Ticket.md
+      - Silver Tickets: active-directory/persistence/Silver Tickets.md
+      - Shadow Copies: active-directory/persistence/Shadow Copies.md
+    - Abuse:
+      - DACL Abuse: "active-directory/abuse/AD-DACL -- Discretionary Access Control List.md"
+      - GPO Abuse: active-directory/abuse/gpo abuse.md
+      - Jenkins: active-directory/abuse/jenkins.md
+
   - Linux Misc:
-    - Background Jobs: "Linux - Miscellaneous/Background Jobs.md"
-    - Shell Basics: "Linux - Miscellaneous/Basics about shell and others.md"
-    - Obsidian Commands: "Linux - Miscellaneous/Obsidian Commands.md"
-  - My Tools:
-    - Creating Functions: "myOwnTools/s4v/creating function in kali.md"
-    - ExtractPorts: "myOwnTools/s4v/extractPorts.md"
-    - HTB Explorer: "myOwnTools/s4v/htbExplorer.md"
-    - Which System: "myOwnTools/s4v/whichSystem.md"
+    - Shell Basics: linux-misc/Basics about shell and others.md
+    - Linux Commands: linux-misc/Linux Commands.md
+    - Background Jobs: linux-misc/Background Jobs.md
+    - Obsidian Commands: linux-misc/Obsidian Commands.md
+    - Python HTTP Server: linux-misc/python http.server.md
+    - Python Virtual Environment: linux-misc/python virtual environment.md
+    - Kali Linux:
+      - Fix and Tweaks: linux-misc/kali/Fix and Tweaks.md
+      - Shared Folder Mount: linux-misc/kali/Shared Folder Mount.md
+
+  - Tools:
+    - Information Gathering: tools/Information Gathering Tools.md
+    - s4v:
+      - ExtractPorts: tools/s4v/extractPorts.md
+      - HTB Explorer: tools/s4v/htbExplorer.md
+      - Which System: tools/s4v/whichSystem.md
+      - Creating Functions: tools/s4v/creating function in kali.md
