@@ -1,6 +1,6 @@
 site_name: My Pentest Methodology
 site_url: https://brojasl90.github.io/myMethodNotes
-site_description: Pentest and bug bounty methodology notes by Bryan Rojas Loria
+site_description: Pentest and bug bounty methodology notes by Brayan Rojas Loria
 
 theme:
   name: material
@@ -11,9 +11,12 @@ theme:
   features:
     - navigation.tabs
     - navigation.indexes
-    - navigation.sections
+    - navigation.prune
+    - navigation.top
     - search.highlight
+    - search.suggest
     - content.code.copy
+    - toc.follow
 
 plugins:
   - search
@@ -33,7 +36,9 @@ nav:
   - Home: index.md
 
   - Recon:
+    - recon/index.md
     - Passive:
+      - recon/passive/index.md
       - Google Hacking: recon/passive/Google Hacking.md
       - Netcraft: recon/passive/Netcraft.md
       - Open-Source Code: recon/passive/Open-Source Code.md
@@ -42,6 +47,7 @@ nav:
       - Whois Enumeration: recon/passive/Whois Enumeration.md
       - Git Recon: recon/passive/git.md
     - Active:
+      - recon/active/index.md
       - General Approach by Port: recon/active/General approach based on ports and services.md
       - Nmap: recon/active/nmap.md
       - Port Scanning Theory: recon/active/TCP - UDP Port Scanning Theory.md
@@ -55,6 +61,7 @@ nav:
       - Test-NetConnection: recon/active/Test-NetConnection.md
       - Scan from Windows CMD: recon/active/from windows scan using CMD.md
     - Services:
+      - recon/services/index.md
       - DNS Enumeration: recon/services/DNS Enumeration.md
       - dnsenum: recon/services/dnsenum.md
       - dnsrecon: recon/services/dnsrecon.md
@@ -73,6 +80,7 @@ nav:
       - wget (Linux): recon/services/wget - Linux.md
       - iwr (Windows): recon/services/iwr - windows.md
     - Web:
+      - recon/web/index.md
       - Web Methodology: recon/web/web methodology.md
       - Directory Traversal: recon/web/Directory Transversal.md
       - Burp Suite: recon/web/Burp Suite.md
@@ -83,16 +91,20 @@ nav:
       - whatweb: recon/web/whatweb.md
       - Wordlists: recon/web/wordlists.md
       - XSS:
+        - recon/web/xss/index.md
         - Stored XSS: recon/web/xss/Stored XSS.md
         - Reflected XSS: recon/web/xss/Reflected XSS.md
         - DOM-based XSS: recon/web/xss/DOM-based XSS.md
       - WordPress:
+        - recon/web/wordpress/index.md
         - WPScan: recon/web/wordpress/wpscan - wordpress.md
         - Searchsploit: recon/web/wordpress/searchsploit.md
     - Windows:
+      - recon/windows/index.md
       - Enum General Windows: recon/windows/enum General Windows.md
       - Scan with PowerShell: recon/windows/scan network with powershell.md
     - Flag Search:
+      - recon/flag-search/index.md
       - grep - Passwords & Content: "recon/flag-search/grep - Searching interesting passwords or content.md"
       - Search Recursively Linux: recon/flag-search/search recursively in Linux.md
       - Search Files Windows: "recon/flag-search/search for every file in windows - powershell.md"
@@ -101,8 +113,9 @@ nav:
       - Windows: recon/flag-search/Windows.md
 
   - Exploitation:
+    - exploitation/index.md
     - Web:
-      - Web Methodology: recon/web/web methodology.md
+      - exploitation/web/index.md
       - LFI: exploitation/web/Local File Inclusion - LFI.md
       - Upload Files: exploitation/web/Upload files.md
       - Basic Webshell: exploitation/web/basic webshell method.md
@@ -114,6 +127,7 @@ nav:
       - OS Injection Python: exploitation/web/Python.md
       - xp_cmdshell: exploitation/web/xp_cmdshell.md
       - SQLi:
+        - exploitation/web/sqli/index.md
         - General Approach: exploitation/web/sqli/General approach.md
         - Validate DB Type: exploitation/web/sqli/Validate type of Database.md
         - UNION-based: exploitation/web/sqli/UNION-based.md
@@ -123,6 +137,7 @@ nav:
         - MySQL: exploitation/web/sqli/Mysql.md
         - xp_cmdshell MSSQL: "exploitation/web/sqli/xp_cmdshell feature - MSSQL.md"
     - Services:
+      - exploitation/services/index.md
       - CVE Search: exploitation/services/cve search.md
       - SSH: exploitation/services/ssh.md
       - SMBclient: exploitation/services/smbclient.md
@@ -138,6 +153,7 @@ nav:
       - Email General: exploitation/services/Email General.md
       - sendemail: exploitation/services/sendemail.md
       - Impacket:
+        - exploitation/services/impacket/index.md
         - evil-winrm: exploitation/services/impacket/evil-winrm.md
         - impacket-psexec: exploitation/services/impacket/impacket-psexec.md
         - impacket-wmiexec: exploitation/services/impacket/impacket-wmiexec.md
@@ -146,6 +162,7 @@ nav:
         - impacket-mssqlclient: exploitation/services/impacket/impacket-mssqlclient.md
         - impacket-ntlmrelayx: exploitation/services/impacket/impacket-ntlmrelayx.md
     - Reverse Shells:
+      - exploitation/reverse-shells/index.md
       - Linux: exploitation/reverse-shells/Linux.md
       - Linux (blind, no nc): exploitation/reverse-shells/Linux when blind and no nc.md
       - Netcat: exploitation/reverse-shells/Netcat.md
@@ -162,11 +179,14 @@ nav:
       - WordPress Plugin: exploitation/reverse-shells/wordpress plugin.md
       - Base64 Encode: exploitation/reverse-shells/base64 encode.md
     - Tunneling:
+      - exploitation/tunneling/index.md
       - Chisel: exploitation/tunneling/chisel.md
       - Ligolo: exploitation/tunneling/ligolo.md
     - Phishing:
+      - exploitation/phishing/index.md
       - WsgiDAV: exploitation/phishing/WsgiDAV.md
     - Password Cracking:
+      - exploitation/password-cracking/index.md
       - Methodology: exploitation/password-cracking/Cracking methodology.md
       - Hydra: exploitation/password-cracking/hydra.md
       - John the Ripper: exploitation/password-cracking/John the Ripper.md
@@ -178,6 +198,7 @@ nav:
       - keepass2john: exploitation/password-cracking/keepass2john.md
       - Keepass: exploitation/password-cracking/Keepass.md
       - Hashes:
+        - exploitation/password-cracking/hash/index.md
         - Hash Identifier: exploitation/password-cracking/hash/hash-identifier.md
         - Hashcat Formats: exploitation/password-cracking/hash/hashcat formats.md
         - Hashcat: exploitation/password-cracking/hash/hashcat.md
@@ -188,7 +209,9 @@ nav:
         - Relaying Net-NTLMv2: exploitation/password-cracking/hash/Relaying Net-NTLMv2.md
 
   - Privilege Escalation:
+    - privilege-escalation/index.md
     - Linux:
+      - privilege-escalation/linux/index.md
       - Basic PrivEsc: privilege-escalation/linux/Basic Linux priv escalation.md
       - Enum General: privilege-escalation/linux/Enum General.md
       - linpeas: privilege-escalation/linux/linpeas.md
@@ -201,6 +224,7 @@ nav:
       - unix-privesc-check: privilege-escalation/linux/unix-privesc-check.md
       - powerup.ps1: privilege-escalation/linux/powerup.ps1.md
     - Windows:
+      - privilege-escalation/windows/index.md
       - winpeas: privilege-escalation/windows/winpeas.md
       - Mimikatz: privilege-escalation/windows/mimikatz.md
       - SAM: privilege-escalation/windows/SAM.md
@@ -213,6 +237,7 @@ nav:
       - sharpGPOAbuse: privilege-escalation/windows/sharpGPOAbuse.md
       - CVE-2023-29360: privilege-escalation/windows/CVE-2023-29360.exe.md
       - Potatoes:
+        - privilege-escalation/windows/potatoes/index.md
         - GodPotato: privilege-escalation/windows/potatoes/GodPotato.md
         - JuicyPotato: privilege-escalation/windows/potatoes/juicypotato.md
         - PrintSpoofer: privilege-escalation/windows/potatoes/printspoofer.md
@@ -223,31 +248,38 @@ nav:
         - SigmaPotato: privilege-escalation/windows/potatoes/SigmaPotato.md
 
   - Active Directory:
+    - active-directory/index.md
     - Enumeration:
+      - active-directory/enumeration/index.md
       - Bloodhound: active-directory/enumeration/bloodhound.md
       - PowerView: active-directory/enumeration/PowerView.md
       - Kerbrute: active-directory/enumeration/kerbrute.md
       - impacket-GetNPUser: active-directory/enumeration/impacket-GetNPUser.md
       - WinRS & WMI & WinRM: "active-directory/enumeration/winrs and WMI, WinRM.md"
     - Attacks:
+      - active-directory/attacks/index.md
       - Kerberoasting: active-directory/attacks/kerberoasting.md
       - AS-REP Roasting: active-directory/attacks/As-rep-roasting.md
       - Pass the Hash: active-directory/attacks/Pass the hash.md
       - Rubeus: active-directory/attacks/Rubeus.exe.md
     - Lateral Movement:
+      - active-directory/lateral-movement/index.md
       - Overpass the Hash: active-directory/lateral-movement/Overpass the Hash.md
       - Pass the Ticket: active-directory/lateral-movement/Pass the ticket.md
     - Persistence:
+      - active-directory/persistence/index.md
       - DCSync: active-directory/persistence/DCSync.md
       - Golden Ticket: active-directory/persistence/Golden Ticket.md
       - Silver Tickets: active-directory/persistence/Silver Tickets.md
       - Shadow Copies: active-directory/persistence/Shadow Copies.md
     - Abuse:
+      - active-directory/abuse/index.md
       - DACL Abuse: "active-directory/abuse/AD-DACL -- Discretionary Access Control List.md"
       - GPO Abuse: active-directory/abuse/gpo abuse.md
       - Jenkins: active-directory/abuse/jenkins.md
 
   - Linux Misc:
+    - linux-misc/index.md
     - Shell Basics: linux-misc/Basics about shell and others.md
     - Linux Commands: linux-misc/Linux Commands.md
     - Background Jobs: linux-misc/Background Jobs.md
@@ -255,12 +287,15 @@ nav:
     - Python HTTP Server: linux-misc/python http.server.md
     - Python Virtual Environment: linux-misc/python virtual environment.md
     - Kali Linux:
+      - linux-misc/kali/index.md
       - Fix and Tweaks: linux-misc/kali/Fix and Tweaks.md
       - Shared Folder Mount: linux-misc/kali/Shared Folder Mount.md
 
   - Tools:
+    - tools/index.md
     - Information Gathering: tools/Information Gathering Tools.md
     - s4v:
+      - tools/s4v/index.md
       - ExtractPorts: tools/s4v/extractPorts.md
       - HTB Explorer: tools/s4v/htbExplorer.md
       - Which System: tools/s4v/whichSystem.md
