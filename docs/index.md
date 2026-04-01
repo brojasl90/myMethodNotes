@@ -4,7 +4,7 @@
            border: 4px solid #000000;
            padding: 4px;" />
 
-  ## Brayan Rojas Loria
+  <h2> Bryan Rojas Loria</h2>
 
   Penetration Tester · OSCP+ · CEH · GSEC  
   📍 Costa Rica
@@ -30,11 +30,11 @@ PR on [GitHub](https://github.com/brojasl90/myMethodNotes).
 
 ## Sections
 
-| Section | Description |
-|---|---|
-| [Recon](recon/passive/Google Hacking.md) | Passive OSINT, active scanning, service enumeration, web recon |
-| [Exploitation](exploitation/web/Local File Inclusion - LFI.md) | Web attacks, services, reverse shells, tunneling, password cracking |
-| [Privilege Escalation](privilege-escalation/linux/Basic Linux priv escalation.md) | Linux and Windows privesc techniques and tools |
-| [Active Directory](active-directory/enumeration/bloodhound.md) | Enumeration, attacks, lateral movement, persistence |
-| [Linux Misc](linux-misc/Basics about shell and others.md) | Shell tips, Kali tweaks, Python tools |
-| [Tools](tools/s4v/extractPorts.md) | Custom s4v tools and information gathering references |
+| Section                                                                           | Description                                                         |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| [Recon](recon/passive/Google Hacking.md)                                          | Passive OSINT, active scanning, service enumeration, web recon      |
+| [Exploitation](exploitation/web/Local File Inclusion - LFI.md)                    | Web attacks, services, reverse shells, tunneling, password cracking |
+| [Privilege Escalation](privilege-escalation/linux/Basic Linux priv escalation.md) | Linux and Windows privesc techniques and tools                      |
+| [Active Directory](active-directory/enumeration/bloodhound.md)                    | Enumeration, attacks, lateral movement, persistence                 |
+| [Linux Misc](linux-misc/Basics about shell and others.md)                         | Shell tips, Kali tweaks, Python tools                               |
+| [Tools](tools/s4v/extractPorts.md)                                                | Custom s4v tools and information gathering references               |

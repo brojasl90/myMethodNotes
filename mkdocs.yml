@@ -119,8 +119,7 @@ nav:
       - LFI: exploitation/web/Local File Inclusion - LFI.md
       - Upload Files: exploitation/web/Upload files.md
       - Basic Webshell: exploitation/web/basic webshell method.md
-      - Webshells: exploitation/web/webshells.md
-      - PHP Webshell: exploitation/web/webShell PHP.md
+      - Webshells: exploitation/reverse-shells/webShell PHP.md
       - cewl Crawling: exploitation/web/cewl - crawling.md
       - curl: exploitation/web/curl.md
       - Python HTTP Server: exploitation/web/server http with python.md
@@ -255,6 +254,7 @@ nav:
       - PowerView: active-directory/enumeration/PowerView.md
       - Kerbrute: active-directory/enumeration/kerbrute.md
       - impacket-GetNPUser: active-directory/enumeration/impacket-GetNPUser.md
+      - adPEAS: active-directory/enumeration/adPEAS.md      
       - WinRS & WMI & WinRM: "active-directory/enumeration/winrs and WMI, WinRM.md"
     - Attacks:
       - active-directory/attacks/index.md
@@ -262,6 +262,8 @@ nav:
       - AS-REP Roasting: active-directory/attacks/As-rep-roasting.md
       - Pass the Hash: active-directory/attacks/Pass the hash.md
       - Rubeus: active-directory/attacks/Rubeus.exe.md
+      - Constrained Delegation: active-directory/attacks/Constrained Delegation.md
+      - NTLM Relay: active-directory/attacks/NTLM Relay.md
     - Lateral Movement:
       - active-directory/lateral-movement/index.md
       - Overpass the Hash: active-directory/lateral-movement/Overpass the Hash.md
@@ -276,6 +278,8 @@ nav:
       - active-directory/abuse/index.md
       - DACL Abuse: "active-directory/abuse/AD-DACL -- Discretionary Access Control List.md"
       - GPO Abuse: active-directory/abuse/gpo abuse.md
+      - GPP Passwords: active-directory/abuse/GPP Passwords.md
+      - gMSA Abuse: active-directory/abuse/gMSA Abuse.md
       - Jenkins: active-directory/abuse/jenkins.md
 
   - Linux Misc:

