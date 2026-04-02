@@ -266,6 +266,7 @@ nav:
       - NTLM Relay: active-directory/attacks/NTLM Relay.md
     - Lateral Movement:
       - active-directory/lateral-movement/index.md
+      - Lateral Movement: "active-directory/lateral-movement/Lateral Movement.md"      
       - Overpass the Hash: active-directory/lateral-movement/Overpass the Hash.md
       - Pass the Ticket: active-directory/lateral-movement/Pass the ticket.md
     - Persistence:
