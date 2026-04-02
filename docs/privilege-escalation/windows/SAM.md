@@ -3,7 +3,7 @@ As it looks like a backup of the system we should see if the SAM and SYSTEM file
 
 First we need to go the directory `Windows\System32\Config` and then use the `get` command to download the files.
 
-![[masterDoc/offsec/OSCP/Pictures/Pasted image 20240719005811.png]]
+![](../../PICS/Pasted image 20240719005811.png)
 
 Another way is to 
 
@@ -15,4 +15,4 @@ samdump2 SYSTEM SAM -o /home/kali/SAMhashes.txt
 
 Once completed we can `cat` the file to confirm if we have extracted account hashes.
 
-![[masterDoc/offsec/OSCP/Pictures/Pasted image 20240719005847.png]]
+![](../../PICS/Pasted image 20240719005847.png)

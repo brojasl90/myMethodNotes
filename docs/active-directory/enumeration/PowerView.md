@@ -28,6 +28,6 @@ Lets say we wish to enumerate the “Default Domain Policy” GPO listed, execut
 Get-GPO -Name "Default Domain Policy
 ```
 
-![[Pasted image 20241029222519.png]]
+![](../../PICS/Pasted image 20241029222519.png)
 
 

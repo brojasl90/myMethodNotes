@@ -6,4 +6,4 @@ samdump2 SYSTEM SAM -o /home/kali/SAMhashes.txt
 
 Once completed we can `cat` the file to confirm if we have extracted account hashes.
 
-![[masterDoc/offsec/OSCP/Pictures/Pasted image 20240719010119.png]]
+![](../../PICS/Pasted image 20240719010119.png)

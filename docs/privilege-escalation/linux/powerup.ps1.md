@@ -18,7 +18,6 @@ PS C:\> Import-Module PowerUp.ps1PS C:\> . .\PowerUp.ps1
 ```
 
 The one we are most interested in is `Invoke-AllChecks` because it runs all the checks included in the module. To run it, we simply run that command as shown below:
-![[Pasted image 20241005013235.png]]
 
 There is some interesting output here. PowerUp.ps1 will run all the required checks and spit out a lot of stuff. Let’s take a look at part of the output. If you notice the section that reads [*] Checking service permissions… We see a service that comes back as potentially vulnerable. Here’s a breakdown of some of the output.
 
@@ -31,10 +30,9 @@ There is some interesting output here. PowerUp.ps1 will run all the required che
 
 Now that we have taken a look at this service and determined we can restart it and it is running as Local Administrator privileges, let’s go ahead and run the AbuseFunction command that is given. In our example above this will be Install-ServiceAbuse -Name ‘AbyssWebServer’.
 
-![[Pasted image 20241005013410.png]]
 
 After we run the command, we will notice the output provides the command that PowerUp.ps1 executed. It looks like it added the user john with a password of Password123! then it added that user to the administrator’s group. Let’s confirm that this worked by typing in net user:
-![[Pasted image 20241005013435.png]]
+
 We notice the user john is now added to the computer. If we login as john we should have full administrative privileges on the computer.
 
 ## Customizing the Exploit

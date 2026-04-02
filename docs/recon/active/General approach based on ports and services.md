@@ -32,7 +32,6 @@ Naming context
 ```
 ldapsearch -h 192.168.1.1 -x -s base namingcontexts
 ```
-![[Pasted image 20240918193100.png]]
 
 ```
 ldapsearch -h 192.168.1.1 -x -b "DC=htb,DC=local" > ldap-anonymous.out

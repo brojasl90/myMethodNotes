@@ -4,7 +4,7 @@ https://gtfobins.github.io/
 git search example
 
 Sudo abuse vector for git
-![[masterDoc/offsec/OSCP/Pictures/Pasted image 20240830182702.png]]
+![](../../PICS/Pasted image 20240830182702.png)
 
 Abusing git sudo command by setting an environment variable
 ```
